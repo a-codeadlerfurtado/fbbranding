@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+~<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -935,20 +935,20 @@ footer {
           <div class="form-row">
             <div class="form-field">
               <label class="form-label">Nome</label>
-              <input class="form-input" type="text" placeholder="Seu nome completo">
+              <input class="form-input" id="contact-nome" type="text" placeholder="Seu nome completo">
             </div>
             <div class="form-field">
               <label class="form-label">Telefone / WhatsApp</label>
-              <input class="form-input" type="tel" placeholder="(47) 9 0000-0000">
+              <input class="form-input" id="contact-telefone" type="tel" placeholder="(47) 9 0000-0000">
             </div>
           </div>
           <div class="form-field full">
             <label class="form-label">E-mail</label>
-            <input class="form-input" type="email" placeholder="seu@email.com">
+            <input class="form-input" id="contact-email" type="email" placeholder="seu@email.com">
           </div>
           <div class="form-field full">
             <label class="form-label">Estou buscando</label>
-            <select class="form-select">
+            <select class="form-select" id="contact-objetivo">
               <option value="">Selecione o objetivo</option>
               <option>Moradia — Balneário Camboriú</option>
               <option>Moradia — Praia Brava</option>
@@ -960,9 +960,9 @@ footer {
           </div>
           <div class="form-field full">
             <label class="form-label">Mensagem</label>
-            <textarea class="form-textarea" placeholder="Conte um pouco mais sobre o que você busca..."></textarea>
+            <textarea class="form-textarea" id="contact-mensagem" placeholder="Conte um pouco mais sobre o que você busca..."></textarea>
           </div>
-          <button class="form-submit">Enviar mensagem</button>
+          <button class="form-submit" id="contact-submit" type="button">Enviar mensagem</button>
         </div>
         <div class="contact-social">
           <a class="social-link" href="https://wa.me/5547999999999" target="_blank">WhatsApp</a>
@@ -1063,7 +1063,7 @@ footer {
 </footer>
 
 <!-- WHATSAPP FLOATING BUTTON -->
-<a class="wa-float" href="https://wa.me/5547999999999?text=Olá! Tenho interesse em imóveis em Balneário Camboriú." target="_blank" aria-label="Falar no WhatsApp">
+<a class="wa-float" id="wa-float" href="#" data-wa-text="Olá! Tenho interesse em imóveis em Balneário Camboriú." target="_blank" aria-label="Falar no WhatsApp">
   <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M16 1C7.716 1 1 7.716 1 16c0 2.628.676 5.1 1.86 7.248L1 31l7.944-2.08A14.94 14.94 0 0016 31c8.284 0 15-6.716 15-15S24.284 1 16 1z" fill="#25D366"/>
     <path d="M23.5 20.32c-.32-.16-1.896-.936-2.19-1.042-.293-.106-.506-.16-.72.16-.213.32-.826 1.042-1.013 1.255-.187.214-.373.24-.693.08-.32-.16-1.35-.497-2.571-1.587-.95-.848-1.59-1.895-1.777-2.215-.187-.32-.02-.493.14-.652.144-.143.32-.373.48-.56.16-.187.213-.32.32-.533.106-.213.053-.4-.027-.56-.08-.16-.72-1.735-.986-2.375-.26-.624-.524-.54-.72-.55l-.613-.01c-.213 0-.56.08-.853.4s-1.12 1.095-1.12 2.67c0 1.575 1.147 3.097 1.307 3.31.16.213 2.257 3.447 5.47 4.834.765.33 1.362.527 1.827.675.768.244 1.468.21 2.02.127.616-.092 1.896-.776 2.163-1.525.267-.75.267-1.392.187-1.525-.08-.133-.293-.213-.613-.373z" fill="#fff"/>
@@ -1131,6 +1131,76 @@ footer {
   window.addEventListener('scroll', function() {
     nav.classList.toggle('solid', window.scrollY > 60);
   }, { passive: true });
+</script>
+
+<!-- WHATSAPP ROUND-ROBIN: FERNANDA / RICARDO -->
+<script>
+(function() {
+  var CONSULTORES = [
+    { nome: 'Fernanda', numero: '5547991707447' },
+    { nome: 'Ricardo',  numero: '5547991214885' }
+  ];
+  var STORAGE_KEY = 'fb_wa_round_robin_idx';
+
+  // Retorna o próximo consultor da fila e avança o ponteiro (persistido)
+  function proximoConsultor() {
+    var idx = 0;
+    try {
+      idx = parseInt(localStorage.getItem(STORAGE_KEY), 10);
+      if (isNaN(idx)) idx = 0;
+    } catch (e) {
+      idx = 0;
+    }
+    var consultor = CONSULTORES[idx % CONSULTORES.length];
+    var proximo = (idx + 1) % CONSULTORES.length;
+    try { localStorage.setItem(STORAGE_KEY, proximo); } catch (e) {}
+    return consultor;
+  }
+
+  function montarUrl(numero, texto) {
+    return 'https://wa.me/' + numero + '?text=' + texto;
+  }
+
+  // BOTÃO FLUTUANTE
+  var waFloat = document.getElementById('wa-float');
+  if (waFloat) {
+    waFloat.addEventListener('click', function(e) {
+      e.preventDefault();
+      var consultor = proximoConsultor();
+      var textoBase = waFloat.getAttribute('data-wa-text') || 'Olá! Tenho interesse em imóveis em Balneário Camboriú.';
+      var url = montarUrl(consultor.numero, encodeURIComponent(textoBase));
+      window.open(url, '_blank');
+    });
+  }
+
+  // FORMULÁRIO DE CONTATO
+  var btn = document.getElementById('contact-submit');
+  if (btn) {
+    btn.addEventListener('click', function() {
+      var nome = document.getElementById('contact-nome').value.trim();
+      var telefone = document.getElementById('contact-telefone').value.trim();
+      var email = document.getElementById('contact-email').value.trim();
+      var objetivo = document.getElementById('contact-objetivo').value.trim();
+      var mensagem = document.getElementById('contact-mensagem').value.trim();
+
+      if (!nome || !telefone) {
+        alert('Por favor, preencha pelo menos Nome e Telefone/WhatsApp.');
+        return;
+      }
+
+      var texto = 'Olá! Vim pelo site e gostaria de mais informações.%0A%0A';
+      texto += '*Nome:* ' + encodeURIComponent(nome) + '%0A';
+      texto += '*Telefone/WhatsApp:* ' + encodeURIComponent(telefone) + '%0A';
+      if (email) texto += '*E-mail:* ' + encodeURIComponent(email) + '%0A';
+      if (objetivo) texto += '*Estou buscando:* ' + encodeURIComponent(objetivo) + '%0A';
+      if (mensagem) texto += '*Mensagem:* ' + encodeURIComponent(mensagem) + '%0A';
+
+      var consultor = proximoConsultor();
+      var url = montarUrl(consultor.numero, texto);
+      window.open(url, '_blank');
+    });
+  }
+})();
 </script>
 </body>
 </html>
